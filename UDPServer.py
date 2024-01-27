@@ -15,7 +15,7 @@ while (True):
     user = username.decode()
     
     #store username
-    filename = ("user.txt")
+    filename = (user)
     userfile = open(filename, "w")
     userfile.write(user)
     userfile.close()
