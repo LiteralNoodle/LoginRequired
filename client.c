@@ -6,27 +6,57 @@
 #include <stdio.h>
 #include <curl/curl.h>
 #include <openssl/sha.h>
+#include <stdbool.h>
+
+#define ANSI_FOREGROUND_GREEN "\e[0;32m"
+#define ANSI_FOREGROUND_RED "\e[0;31m"
+#define ANSI_FOREGROUND_WHITE "\e[0;37m"
+
+typedef bool (*questionCallback)(char*);
+
+bool example_function(char* message);
 
 struct MemoryStruct {
   char *memory;
   size_t size;
 };
 
+struct Question {
+	char* message;
+	questionCallback callback;
+};
+
 int main (void) {
 
 	// hash password
-	char* password = "this is my password. It is very secure!";
-	char hashed[1024] = "";
-	hash_str(password, hashed);
+	// char* password = "this is my password. It is very secure!";
+	// char hashed[1024] = "";
+	// hash_str(password, hashed);
 
-	printf("%s\n", hashed);
+	// printf("%s\n", hashed);
 
-	send_user_login("cats", "myhash");
+	// send_user_login("cats", "myhash");
 
-	
+	char* one = "one";
+	char* two = "two";
+	char* three = "three";
 
-	// hash_string(hashed, unhashed);
-	// printf("\n\n%s\n", hashed);
+	char* list[] = {one, two, three};
+
+	print_list(list, 3);
+
+	char userin[64];
+	get_input_with_message("Hi, how are ya", userin);
+	printf("%s\n", userin);
+
+	char colorstr[512];
+	color_string(userin, ANSI_FOREGROUND_GREEN, colorstr);
+
+	printf("%s\n", colorstr);
+
+	struct Question test = { "Hey this is a question!", example_function };
+
+	test.callback(test.message);
 
 	return 0;
 }
@@ -110,4 +140,34 @@ void hash_str(char* inbuf, char* hashbuf) {
 		sprintf(tmp, "%x", outbuf[i]);
 		strcat(hashbuf, tmp);
 	}
+}
+
+void get_input_with_message(char* message, char* userinput) {
+
+	if (message) {
+		printf("%s\n>>> ", message);
+	}
+	scanf("%s", userinput); 
+
+	return;
+
+}
+
+void print_list(char** messageList, int listLength) {
+
+	for (int i = 0; i < listLength; i++) {
+		printf("%s\n", messageList[i]);
+	}
+
+}
+
+void color_string(char* message, char* color, char* colorstr) {
+	strcat(colorstr, ANSI_FOREGROUND_GREEN);
+	strcat(colorstr, message);
+	strcat(colorstr, ANSI_FOREGROUND_WHITE);
+}
+
+bool example_function(char* message) {
+	printf("%s\n", message);
+	return true;
 }
