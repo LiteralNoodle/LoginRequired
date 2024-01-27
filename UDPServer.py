@@ -11,7 +11,7 @@ print("Server is ready to receive messages...\n")
 # run forever loop to keep receiving messages
 while (True):
     # receive the message from socket
-    username, password,client_address = server_socket.recvfrom(2048)
+    username, client_address = server_socket.recvfrom(2048)
     user = username.decode()
     
     #store username
