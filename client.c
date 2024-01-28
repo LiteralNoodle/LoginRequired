@@ -231,22 +231,65 @@ bool example_function(char* message) {
 	return true;
 }
 
+// "Your password must contain a number."
 bool question1(char* message) {
 	return true;
 }
 
+// "Your password must contain a capital letter."
 bool question2(char* message) {
 	return true;
 }
 
+
+// "Your password must contain a special character from this list: !@#$^&*()+=~"
 bool question3(char* message) {
 	return true;
 }
 
+// "The length of your password must be a highly composite number."
 bool question4(char* message) {
 	return true;
 }
 
+// "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear"
+bool question5(char* message) {
+	return false;
+}
+
+// "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm"
+bool question6(char* message) {
+	return false;
+}
+
+
+// "Your password must contain a roman numeral."
+bool question7(char* message) {
+	return false;
+}
+
+// "The digits in your password must sum to 18 or more."
+bool question8(char* message) {
+	return false;
+}
+
+// "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi"
+bool question9(char* message) {
+	return false;
+}
+
+// "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970"
+bool question10(char* message) {
+	return false;
+}
+
+// "Your password must contain your star sign."
+bool question11(char* message) {
+	return false;
+}
+
+
+// Entry point 
 int main (void) {
 
 	char server_ip[64];
@@ -267,7 +310,14 @@ int main (void) {
 	// question struct instances
 	// MUST be defined in reverse order so that list can be made
 	// struct Question test = { "Hey this is a question!", example_function };
-	tQuestion q4 = { "The length of your password must be a highly composite number.", question4, NULL }; 
+	tQuestion q11 = { "Your password must contain your star sign.", question11, NULL };
+	tQuestion q10 = { "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970", question10, &q11 };
+	tQuestion q9 = { "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi", question9, &q10 };
+	tQuestion q8 = { "The digits in your password must sum to 18 or more.", question8, &q9 };
+	tQuestion q7 = { "Your password must contain a roman numeral.", question7, &q8 };
+	tQuestion q6 = { "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm", question6, &q7 };
+	tQuestion q5 = { "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear", question5, &q6 };
+	tQuestion q4 = { "The length of your password must be a highly composite number.", question4, &q5 }; 
 	tQuestion q3 = { "Your password must contain a special character from this list: !@#$^&*()+=~", question3, &q4 };
 	tQuestion q2 = { "Your password must contain a capital letter.", question2, &q3 };
 	tQuestion q1 = { "Your password must contain a number.", question1, &q2 };
