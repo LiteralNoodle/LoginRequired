@@ -15,6 +15,8 @@
 #define ANSI_FOREGROUND_RED "\e[0;31m"
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
+#define SKIP_CONNECTION_TEST true
+
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
 
@@ -298,11 +300,13 @@ int main (void) {
 
 	printf("\n\nWelcome to the Secure Account Generator!\n\n");
 
-	// opening_config(server_ip, server_port);
-	// if (test_connection(server_ip, server_port)) {
-	// 	printf("\nConnection failed! Aborting...\n");
-	// 	exit(-1);
-	// }
+	if (!SKIP_CONNECTION_TEST) {
+		opening_config(server_ip, server_port);
+		if (test_connection(server_ip, server_port)) {
+			printf("\nConnection failed! Aborting...\n");
+			exit(-1);
+		}
+	}
 
 	// winning variables
 	char username[64] = "";
