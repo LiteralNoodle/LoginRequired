@@ -2,6 +2,7 @@
 // Other team members include Trey Burkhalter, Christian Brunning, and Aaron Earp. 
 
 // Source for libcurl code can be found at: https://www.youtube.com/playlist?list=PLA1FTfKBAEX6p-lfk1l_Q2zh2E5wd-cup
+// Source for sha256 code can be found at: https://stackoverflow.com/questions/2262386/generate-sha256-with-openssl-and-c
 
 #include <string.h>
 #include <stdlib.h>
@@ -136,17 +137,17 @@ int test_connection(char* server_ip, char* server_port) {
 	return 0; 
 }
 
-void hash_str(char* inbuf, char* hashbuf) {
+// hash function sha256 which will also be used on the server side
+void sha256_hash_string (unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuffer[65])
+{
+    int i = 0;
 
-	char outbuf[20];
+    for(i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        sprintf(outputBuffer + (i * 2), "%02x", hash[i]);
+    }
 
-	SHA1(inbuf, strlen(inbuf), outbuf);
-
-	for (int i = 0; i < 20; i++) {
-		char tmp[16];
-		sprintf(tmp, "%x", outbuf[i]);
-		strcat(hashbuf, tmp);
-	}
+    outputBuffer[64] = 0;
 }
 
 // only accepts a single word
@@ -350,7 +351,7 @@ int main (void) {
 
 	// win state
 	char hashed[64];
-	hash_str(password, hashed);
+	sha256_hash_string(password, hashed);
 	send_user_account(username, hashed, server_ip, server_port);
 
 	return 0;
