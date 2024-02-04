@@ -15,7 +15,7 @@
 #define ANSI_FOREGROUND_RED "\e[0;31m"
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
-#define SKIP_CONNECTION_TEST true
+#define SKIP_CONNECTION_TEST false
 
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
@@ -119,7 +119,7 @@ int test_connection(char* server_ip, char* server_port) {
 		return -1;
 	}
 
-	sprintf(url, "http://%s:%s", server_ip, server_port);
+	sprintf(url, "http://%s:%s/connectiontest", server_ip, server_port);
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
