@@ -16,6 +16,7 @@
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
 #define SKIP_CONNECTION_TEST false
+#define DEBUG_NETWORK false
 
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
@@ -76,7 +77,7 @@ int send_user_account(char* username, char* hash, char* server_ip, char* server_
 	char* url_encoded_username = curl_easy_escape(curl, username, 0);
 	char* url_encoded_hash = curl_easy_escape(curl, hash, 0);
 
-	sprintf(url, "http://%s:%s?username=%s&hash=%s", server_ip, server_port, url_encoded_username, url_encoded_hash);
+	sprintf(url, "http://%s:%s/createaccount?username=%s&hash=%s", server_ip, server_port, url_encoded_username, url_encoded_hash);
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -257,38 +258,38 @@ bool question4(char* message) {
 
 // "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear"
 bool question5(char* message) {
-	return false;
+	return true;
 }
 
 // "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm"
 bool question6(char* message) {
-	return false;
+	return true;
 }
 
 
 // "Your password must contain a roman numeral."
 bool question7(char* message) {
-	return false;
+	return true;
 }
 
 // "The digits in your password must sum to 18 or more."
 bool question8(char* message) {
-	return false;
+	return true;
 }
 
 // "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi"
 bool question9(char* message) {
-	return false;
+	return true;
 }
 
 // "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970"
 bool question10(char* message) {
-	return false;
+	return true;
 }
 
 // "Your password must contain your star sign."
 bool question11(char* message) {
-	return false;
+	return true;
 }
 
 
@@ -311,6 +312,18 @@ int main (void) {
 	// winning variables
 	char username[64] = "";
 	char password[2048] = "";
+
+	// ask for username 
+	get_input_with_message("Please enter the username you wish to use. (Max 64 characters)", username);
+
+	if (DEBUG_NETWORK) {
+		get_input_with_message("Please enter a new password.", password);
+
+		// win state
+		char hashed[64];
+		sha256_hash_string(password, hashed);
+		send_user_account(username, hashed, server_ip, server_port);
+	}
 
 	// question struct instances
 	// MUST be defined in reverse order so that list can be made
