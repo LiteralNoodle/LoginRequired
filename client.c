@@ -177,33 +177,58 @@ void color_string(char* message, char* color, char* colorstr) {
 	strcat(colorstr, ANSI_FOREGROUND_WHITE);
 }
 
+// check the validity of the proposed password
+void check_question_list(tQuestion* q, int stop, char* password, bool* correctness) {
+
+	for (int i = 0; i < stop; i++) {
+
+		// set the truth according to if the question is fulfilled 
+		if (q->callback(password)) {
+			correctness[i] = true;
+		} else {
+			correctness[i] = false;
+		}
+
+		if (q->nextQuestion == NULL) {
+			break;
+		}
+
+		q = q->nextQuestion;
+	}
+
+}
+
+bool all_correct(bool* answers, int length) {
+
+	bool allCorrect = true;
+
+	for (int i = 0; i < length; i++) {
+		if (!answers[i]) {
+			allCorrect = false;
+		}
+	}
+
+	return allCorrect;
+
+} 
+
 // This function prints the list but also is responsible for checking correctness 
-bool print_question_list(tQuestion* q, int stop, char* password) {
+void print_question_list(tQuestion* q, int stop, bool* correctness) {
 
 	// early break for when there's 0 questions shown
 	if (!stop) {
 		return true;
 	}
 
-	bool allCorrect = true;
-	// printf("%d\n", stop);
-
-	for (int i = 0; i < stop+1; i++) {
-
-		// loop normally goes to the next new question, but will stop if you don't have all current questions correct. 
-		// if everything is correct, it assumes you have unlocked the new question. 
-		if (i == stop && !allCorrect) {
-			break;
-		}
+	for (int i = 0; i < stop; i++) {
 
 		char colorstr[1024] = "";
 
 		// set the color according to if the question is fulfilled 
-		if (q->callback(password)) {
+		if (correctness[i]) {
 			color_string(q->message, ANSI_FOREGROUND_GREEN, colorstr);
 		} else {
 			color_string(q->message, ANSI_FOREGROUND_RED, colorstr);
-			allCorrect = false;
 		}
 
 		printf("%s\n", colorstr);
@@ -214,8 +239,6 @@ bool print_question_list(tQuestion* q, int stop, char* password) {
 
 		q = q->nextQuestion;
 	}
-
-	return allCorrect;
 
 }
 
@@ -262,7 +285,6 @@ bool example_function(char* message) {
 
 // "Your password must contain a number."
 bool question1(char* password) {
-
 	regex_t reg;
 	int compilation_code;
 
@@ -293,12 +315,61 @@ bool question1(char* password) {
 
 // "Your password must contain a capital letter."
 bool question2(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, ".*[A-Z].*", 0);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
-
 // "Your password must contain a special character from this list: !@#$^&*()+=~"
 bool question3(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, ".*[!@#$^&*()+=~].*", 0);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
@@ -316,7 +387,6 @@ bool question5(char* password) {
 bool question6(char* password) {
 	return true;
 }
-
 
 // "Your password must contain a roman numeral."
 bool question7(char* password) {
@@ -394,25 +464,34 @@ int main (void) {
 	
 	// main game loop
 	tQuestion* first = &q1;
-	int questions_found = 0;
+	int questions_found = 0; 
 	int total_questions = get_total_questions(first);
 	bool allCorrect = false;
+	bool correctness[total_questions];
+	// init the correctness
+	for (int i = 0; i < total_questions; i++) {
+		correctness[i] = false;
+	}
 	while (true) {
 
-		// check previous attempt and print all the questions
-		allCorrect = print_question_list(first, questions_found, password);
-
-		// increment found questions 
-		if (allCorrect){
-			questions_found++;
-		}
+		// print all the questions
+		print_question_list(first, questions_found, correctness);
 
 		// prompt for user input 
 		get_input_with_message("Please enter a new password.", password);
 
+		// check attempt 
+		check_question_list(first, questions_found, password, correctness);
+		allCorrect = all_correct(correctness, questions_found);
+
 		// check if no more questions (Win state, sbreak loop)
 		if (allCorrect && questions_found == total_questions) {
 			break;
+		}
+
+		// increment if correct
+		if (allCorrect) {
+			questions_found++;
 		}
 
 	}
