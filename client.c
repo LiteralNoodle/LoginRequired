@@ -290,7 +290,7 @@ bool question1(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, ".*[0-9].*", 0);
+	compilation_code = regcomp(&reg, ".*[0-9].*", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -320,7 +320,7 @@ bool question2(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, ".*[A-Z].*", 0);
+	compilation_code = regcomp(&reg, ".*[A-Z].*", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -350,7 +350,7 @@ bool question3(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, ".*[!@#$^&*()+=~].*", 0);
+	compilation_code = regcomp(&reg, ".*[!@#$^&*()+=~].*", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -409,7 +409,7 @@ bool question5(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, ".*[!@#$^&*()+=~].*", 0);
+	compilation_code = regcomp(&reg, "(.*Pepsi|Walmart|Lowes|LEGO|Autozone|Build-A-Bear.*)", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -425,7 +425,7 @@ bool question5(char* password) {
 		return false;
 	}
 
-	// regex ran out of memory. give question for free.
+	// regex ran out of memory. give question for free since it's not their mistake.
 	if (match_code == REG_ESPACE) {
 		return true;
 	}
@@ -436,6 +436,31 @@ bool question5(char* password) {
 
 // "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm"
 bool question6(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*Anky|Timo|Bulldogs|LATech|Cyberstorm.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
@@ -514,7 +539,7 @@ int main (void) {
 	tQuestion q1 = { "Your password must contain a number.", question1, &q2 };
 	
 	// main game loop
-	tQuestion* first = &q4;
+	tQuestion* first = &q5;
 	int questions_found = 0; 
 	int total_questions = get_total_questions(first);
 	bool allCorrect = false;
