@@ -344,6 +344,52 @@ bool question11(char* password) {
 }
 
 
+
+
+// "Your password must contain a generation 4 starter Pokemon." (piplup, turtwig, chimchar)
+bool question12(char* password) {
+	return true;
+}
+// "Your password must contain the base power of extremespeed in Pokemon." (80)
+bool question13(char* password) {
+	return true;
+}
+// "Your password must contain a type that is supereffective against dragon type." (dragon, fairy)
+bool question14(char* password) {
+	return true;
+}
+// "Your password must contain a type that is supereffective against flying type." (ice, electric, rock)
+bool question15(char* password) {
+	return true;
+}
+// "Your password must contain the name of the Sinnoh League Champion." (Cynthia, cynthia)
+bool question16(char* password) {
+	return true;
+}
+// "Your password must contain the name of the Sinnoh League Champion's Ace." (garchomp, Garchomp)
+bool question17(char* password) {
+	return true;
+}
+// "Your password must contain your trainer level in Pokemon Go." (1-50)
+bool question18(char* password) {
+	return true;
+}
+// "Your password must contain the name of a grass-fire dual type Pokemon." (scovillain, ogerpon)
+bool question19(char* password) {
+	return true;
+}
+// "Your password must contain the name of the Greek god of the sea" (Poseidon)
+bool question20(char* password) {
+	return true;
+}
+// "Your password must contain the name of the Roman god of the sea" (Neptune)
+bool question21(char* password) {
+	return true;
+}
+
+
+
+
 // Entry point 
 int main (void) {
 
