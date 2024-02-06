@@ -16,7 +16,7 @@
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
 #define SKIP_CONNECTION_TEST false
-#define DEBUG_NETWORK false
+#define DEBUG_NETWORK true
 
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
@@ -141,15 +141,18 @@ int test_connection(char* server_ip, char* server_port) {
 }
 
 // hash function sha256 which will also be used on the server side
-void sha256_hash_string (unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuffer[65])
+void sha256_string(char *string, char outputBuffer[65])
 {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, string, strlen(string));
+    SHA256_Final(hash, &sha256);
     int i = 0;
-
     for(i = 0; i < SHA256_DIGEST_LENGTH; i++)
     {
         sprintf(outputBuffer + (i * 2), "%02x", hash[i]);
     }
-
     outputBuffer[64] = 0;
 }
 
@@ -321,7 +324,8 @@ int main (void) {
 
 		// win state
 		char hashed[64];
-		sha256_hash_string(password, hashed);
+		sha256_string(password, hashed);
+		printf("Hash digest: %s\n", hashed);
 		send_user_account(username, hashed, server_ip, server_port);
 	}
 
@@ -368,7 +372,7 @@ int main (void) {
 
 	// win state
 	char hashed[64];
-	sha256_hash_string(password, hashed);
+	sha256_string(password, hashed);
 	send_user_account(username, hashed, server_ip, server_port);
 
 	return 0;
