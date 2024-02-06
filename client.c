@@ -10,13 +10,14 @@
 #include <curl/curl.h>
 #include <openssl/sha.h>
 #include <stdbool.h>
+#include <regex.h>
 
 #define ANSI_FOREGROUND_GREEN "\e[0;32m"
 #define ANSI_FOREGROUND_RED "\e[0;31m"
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
-#define SKIP_CONNECTION_TEST false
-#define DEBUG_NETWORK true
+#define SKIP_CONNECTION_TEST true
+#define DEBUG_NETWORK false
 
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
@@ -44,7 +45,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb,
   if(!ptr) 
   {
     printf("not enough memory (realloc returned NULL)\n");
-    return CURL_WRITEFUNC_ERROR;
+    return CURLE_WRITE_ERROR;
   }
  
   mem->memory = ptr;
@@ -179,10 +180,21 @@ void color_string(char* message, char* color, char* colorstr) {
 // This function prints the list but also is responsible for checking correctness 
 bool print_question_list(tQuestion* q, int stop, char* password) {
 
+	// early break for when there's 0 questions shown
+	if (!stop) {
+		return true;
+	}
+
 	bool allCorrect = true;
 	// printf("%d\n", stop);
 
-	for (int i = 0; i < stop; i++) {
+	for (int i = 0; i < stop+1; i++) {
+
+		// loop normally goes to the next new question, but will stop if you don't have all current questions correct. 
+		// if everything is correct, it assumes you have unlocked the new question. 
+		if (i == stop && !allCorrect) {
+			break;
+		}
 
 		char colorstr[1024] = "";
 
@@ -196,16 +208,14 @@ bool print_question_list(tQuestion* q, int stop, char* password) {
 
 		printf("%s\n", colorstr);
 
-		if (!allCorrect) {
-			return allCorrect;
-		}
-
 		if (q->nextQuestion == NULL) {
-			return allCorrect;
+			break;
 		}
 
 		q = q->nextQuestion;
 	}
+
+	return allCorrect;
 
 }
 
@@ -231,6 +241,18 @@ int get_total_questions(tQuestion* q) {
 
 }
 
+// prints out the error from regex compilation 
+void print_regex_error(int compilation_code, regex_t* reg) {
+
+	printf("Regex compilation error code: %d\n", compilation_code);
+	size_t length = regerror(compilation_code, reg, NULL, 0);
+	char* err_buffer = malloc(length);
+	regerror(compilation_code, reg, err_buffer, length);
+	printf("%s\n", err_buffer);
+	free(err_buffer);
+
+}
+
 // question functions 
 
 bool example_function(char* message) {
@@ -239,59 +261,85 @@ bool example_function(char* message) {
 }
 
 // "Your password must contain a number."
-bool question1(char* message) {
+bool question1(char* password) {
+
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, ".*[0-9].*", 0);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
 // "Your password must contain a capital letter."
-bool question2(char* message) {
+bool question2(char* password) {
 	return true;
 }
 
 
 // "Your password must contain a special character from this list: !@#$^&*()+=~"
-bool question3(char* message) {
+bool question3(char* password) {
 	return true;
 }
 
 // "The length of your password must be a highly composite number."
-bool question4(char* message) {
+bool question4(char* password) {
 	return true;
 }
 
 // "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear"
-bool question5(char* message) {
+bool question5(char* password) {
 	return true;
 }
 
 // "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm"
-bool question6(char* message) {
+bool question6(char* password) {
 	return true;
 }
 
 
 // "Your password must contain a roman numeral."
-bool question7(char* message) {
+bool question7(char* password) {
 	return true;
 }
 
 // "The digits in your password must sum to 18 or more."
-bool question8(char* message) {
+bool question8(char* password) {
 	return true;
 }
 
 // "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi"
-bool question9(char* message) {
+bool question9(char* password) {
 	return true;
 }
 
 // "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970"
-bool question10(char* message) {
+bool question10(char* password) {
 	return true;
 }
 
 // "Your password must contain your star sign."
-bool question11(char* message) {
+bool question11(char* password) {
 	return true;
 }
 
@@ -349,24 +397,23 @@ int main (void) {
 	int questions_found = 0;
 	int total_questions = get_total_questions(first);
 	bool allCorrect = false;
-	bool prevAllCorrect = false;
 	while (true) {
 
 		// check previous attempt and print all the questions
 		allCorrect = print_question_list(first, questions_found, password);
 
+		// increment found questions 
+		if (allCorrect){
+			questions_found++;
+		}
+
 		// prompt for user input 
 		get_input_with_message("Please enter a new password.", password);
-
-		prevAllCorrect = allCorrect;
 
 		// check if no more questions (Win state, sbreak loop)
 		if (allCorrect && questions_found == total_questions) {
 			break;
 		}
-
-		// increment found questions 
-		questions_found++;
 
 	}
 
