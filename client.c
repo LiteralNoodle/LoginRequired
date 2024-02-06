@@ -19,6 +19,8 @@
 #define SKIP_CONNECTION_TEST true
 #define DEBUG_NETWORK false
 
+#define PASSWORD_MAX_LENGTH 512
+
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
 
@@ -373,13 +375,62 @@ bool question3(char* password) {
 	return true;
 }
 
-// "The length of your password must be a highly composite number."
+// "The length of your password must be a prime number."
 bool question4(char* password) {
-	return true;
+
+	// length of array is 54
+	// only need up to 256 since that's half of the allowed length and 2*256 would fill up the whole thing 
+	int primes[] = {   2,   3,   5,   7,   11,   13,   17,   19,   23,   29,   31,   37,   41,   43,   47,   53,   59,   61,   67,   71,   73,   79,   83,   89,   97,   101,   103,   107,   109,   113,   127,   131,   137,   139,   149,   151,   157,   163,   167,   173,   179,   181,   191,   193,   197,   199,   211,   223,   227,   229,   233,   239,   241,   251 };
+	int length = strlen(password);
+	
+	// I don't really expect them to make a password past this, but just in case:
+	if (length > 256) {
+
+		for (int i = 0; i < 54; i++) {
+			if ((length % primes[i]) == 0) {	// if divisible by anything in the array, then it's composite.
+				return false;
+			}
+		}
+
+	} else {
+		for (int i = 0; i < 54; i++) {
+			if (length == primes[i]) {
+				return true;
+			}
+		}
+	}
+
+	// fail
+	return false;
 }
 
 // "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear"
 bool question5(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, ".*[!@#$^&*()+=~].*", 0);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
@@ -432,7 +483,7 @@ int main (void) {
 
 	// winning variables
 	char username[64] = "";
-	char password[2048] = "";
+	char password[PASSWORD_MAX_LENGTH] = "";
 
 	// ask for username 
 	get_input_with_message("Please enter the username you wish to use. (Max 64 characters)", username);
@@ -457,13 +508,13 @@ int main (void) {
 	tQuestion q7 = { "Your password must contain a roman numeral.", question7, &q8 };
 	tQuestion q6 = { "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm", question6, &q7 };
 	tQuestion q5 = { "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear", question5, &q6 };
-	tQuestion q4 = { "The length of your password must be a highly composite number.", question4, &q5 }; 
+	tQuestion q4 = { "The length of your password must be a prime number.", question4, &q5 }; 
 	tQuestion q3 = { "Your password must contain a special character from this list: !@#$^&*()+=~", question3, &q4 };
 	tQuestion q2 = { "Your password must contain a capital letter.", question2, &q3 };
 	tQuestion q1 = { "Your password must contain a number.", question1, &q2 };
 	
 	// main game loop
-	tQuestion* first = &q1;
+	tQuestion* first = &q4;
 	int questions_found = 0; 
 	int total_questions = get_total_questions(first);
 	bool allCorrect = false;
