@@ -494,45 +494,294 @@ bool question11(char* password) {
 
 // "Your password must contain a generation 4 starter Pokemon." (piplup, turtwig, chimchar)
 bool question12(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*piplup|turtwig|chimchar|Piplup|Turtwig|Chimchar.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain the base power of extremespeed in Pokemon." (80)
 bool question13(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*80.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain a type that is supereffective against dragon type." (dragon, fairy)
 bool question14(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*dragon|fairy|Dragon|Fairy.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain a type that is supereffective against flying type." (ice, electric, rock)
 bool question15(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*ice|electric|rock|Ice|Electric|Rock.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain the name of the Sinnoh League Champion." (Cynthia, cynthia)
 bool question16(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*Cynthia|cynthia.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain the name of the Sinnoh League Champion's Ace." (garchomp, Garchomp)
 bool question17(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*garchomp|Garchomp.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain your trainer level in Pokemon Go." (1-50)
 bool question18(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*[0-50].*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 // "Your password must contain the name of a grass-fire dual type Pokemon." (scovillain, ogerpon)
 bool question19(char* password) {
-	return true;
-}
-// "Your password must contain the name of the Greek god of the sea" (Poseidon)
-bool question20(char* password) {
-	return true;
-}
-// "Your password must contain the name of the Roman god of the sea" (Neptune)
-bool question21(char* password) {
-	return true;
-}
+	regex_t reg;
+	int compilation_code;
 
+	compilation_code = regcomp(&reg, "(.*scovillain|Scovillain|ogerpon|Ogerpon.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
+	return true;
+}
+// "Your password must contain the name of the Greek god of the sea." (Poseidon)
+bool question20(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*poseidon|Poseidon.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
+	return true;
+}
+// "Your password must contain the name of the Roman god of the sea." (Neptune)
+bool question21(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*neptune|Neptune.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
+	return true;
+}
 
 
 
@@ -572,7 +821,17 @@ int main (void) {
 	// question struct instances
 	// MUST be defined in reverse order so that list can be made
 	// struct Question test = { "Hey this is a question!", example_function };
-	tQuestion q11 = { "Your password must contain your star sign.", question11, NULL };
+	tQuestion q21 = { "Your password must contain the name of the Roman god of the sea.", question21, NULL };
+	tQuestion q20 = { "Your password must contain the name of the Greek god of the sea.", question20, &q21 };
+	tQuestion q19 = { "Your password must contain the name of a grass-fire dual type Pokemon.", question19, &q20 };
+	tQuestion q18 = { "Your password must contain your trainer level in Pokemon Go.", question18, &q19 };
+	tQuestion q17 = { "Your password must contain the name of the Sinnoh League Champion's Ace.", question17, &q18 };
+	tQuestion q16 = { "Your password must contain the name of the Sinnoh League Champion.", question16, &q17 };
+	tQuestion q15 = { "Your password must contain a type that is supereffective against flying type.", question15, &q16 };
+	tQuestion q14 = { "Your password must contain a type that is supereffective against dragon type.", question14, &q15 };
+	tQuestion q13 = { "Your password must contain the base power of extremespeed in Pokemon.", question13, &q14 };
+	tQuestion q12 = { "Your password must contain a generation 4 starter Pokemon.", question12, &q13 };
+	tQuestion q11 = { "Your password must contain your star sign.", question11, &q12 };
 	tQuestion q10 = { "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970", question10, &q11 };
 	tQuestion q9 = { "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi", question9, &q10 };
 	tQuestion q8 = { "The digits in your password must sum to 18 or more.", question8, &q9 };
