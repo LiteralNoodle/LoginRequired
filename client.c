@@ -464,28 +464,150 @@ bool question6(char* password) {
 	return true;
 }
 
-// "Your password must contain a roman numeral."
+// "Who lives in a pineapple under the sea?"
 bool question7(char* password) {
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*spongebob|Spongebob|spongebobsquarepants|Spongebobsquarepants|SpongebobSquarepants.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
-// "The digits in your password must sum to 18 or more."
+
+// "Onions have layers, who else has layers?"
 bool question8(char* password) {
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*shrek|Shrek|ogres|Ogres.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
-// "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi"
+
+// "Your password must contain a cartoon character whose slogan is 'Good Mornin'"
 bool question9(char* password) {
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*unclegrandpa|UncleGrandpa|Unclegrandpa.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
-// "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970"
+// "What's 9+10?"
 bool question10(char* password) {
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*21|twentyone.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
-// "Your password must contain your star sign."
+// "Your password must contain the name of the main robot from Futurama"
 bool question11(char* password) {
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*bender|Bender.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
@@ -831,11 +953,11 @@ int main (void) {
 	tQuestion q14 = { "Your password must contain a type that is supereffective against dragon type.", question14, &q15 };
 	tQuestion q13 = { "Your password must contain the base power of extremespeed in Pokemon.", question13, &q14 };
 	tQuestion q12 = { "Your password must contain a generation 4 starter Pokemon.", question12, &q13 };
-	tQuestion q11 = { "Your password must contain your star sign.", question11, &q12 };
-	tQuestion q10 = { "Your password must contain your birthday in MMMDDYYYY format. Example: Jan011970", question10, &q11 };
-	tQuestion q9 = { "Our sponsors list has been updated. Your password must NOT contain an old sponsor: Walmart Autozone Pepsi", question9, &q10 };
-	tQuestion q8 = { "The digits in your password must sum to 18 or more.", question8, &q9 };
-	tQuestion q7 = { "Your password must contain a roman numeral.", question7, &q8 };
+	tQuestion q11 = { "Your password must contain the name of the main robot from Futurama", question11, &q12 };
+	tQuestion q10 = { "What's 9+10?", question10, &q11 };
+	tQuestion q9 = { "Your password must contain a cartoon character whose slogan is 'Good Mornin'", question9, &q10 };
+	tQuestion q8 = { "Onions have layers, who else has layers?", question8, &q9 };
+	tQuestion q7 = { "Who lives in a pineapple under the sea?", question7, &q8 };
 	tQuestion q6 = { "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm", question6, &q7 };
 	tQuestion q5 = { "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear", question5, &q6 };
 	tQuestion q4 = { "The length of your password must be a prime number.", question4, &q5 }; 
