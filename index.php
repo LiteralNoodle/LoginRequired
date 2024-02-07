@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }       
             else {
         // Authentication failed
-                $error_message = $validusernames[0];
+                $error_message = "Invalid username or password!";
     }
 }
 }
