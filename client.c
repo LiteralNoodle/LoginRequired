@@ -515,6 +515,7 @@ bool question6(char* password) {
 
 // "Who lives in a pineapple under the sea?"
 bool question7(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*spongebob|Spongebob|spongebobsquarepants|Spongebobsquarepants|SpongebobSquarepants.*)", REG_EXTENDED);
@@ -545,6 +546,7 @@ bool question7(char* password) {
 
 // "Onions have layers, who else has layers?"
 bool question8(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*shrek|Shrek|ogres|Ogres.*)", REG_EXTENDED);
@@ -575,6 +577,7 @@ bool question8(char* password) {
 
 // "Your password must contain a cartoon character whose slogan is 'Good Mornin'"
 bool question9(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*unclegrandpa|UncleGrandpa|Unclegrandpa.*)", REG_EXTENDED);
@@ -604,6 +607,7 @@ bool question9(char* password) {
 
 // "What's 9+10?"
 bool question10(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*21|twentyone.*)", REG_EXTENDED);
@@ -633,6 +637,7 @@ bool question10(char* password) {
 
 // "Your password must contain the name of the main robot from Futurama"
 bool question11(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*bender|Bender.*)", REG_EXTENDED);
