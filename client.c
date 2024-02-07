@@ -19,6 +19,8 @@
 #define SKIP_CONNECTION_TEST true
 #define DEBUG_NETWORK false
 
+#define PASSWORD_MAX_LENGTH 512
+
 // function pointer for consistent question format
 typedef bool (*questionCallback)(char*);
 
@@ -177,33 +179,58 @@ void color_string(char* message, char* color, char* colorstr) {
 	strcat(colorstr, ANSI_FOREGROUND_WHITE);
 }
 
+// check the validity of the proposed password
+void check_question_list(tQuestion* q, int stop, char* password, bool* correctness) {
+
+	for (int i = 0; i < stop; i++) {
+
+		// set the truth according to if the question is fulfilled 
+		if (q->callback(password)) {
+			correctness[i] = true;
+		} else {
+			correctness[i] = false;
+		}
+
+		if (q->nextQuestion == NULL) {
+			break;
+		}
+
+		q = q->nextQuestion;
+	}
+
+}
+
+bool all_correct(bool* answers, int length) {
+
+	bool allCorrect = true;
+
+	for (int i = 0; i < length; i++) {
+		if (!answers[i]) {
+			allCorrect = false;
+		}
+	}
+
+	return allCorrect;
+
+} 
+
 // This function prints the list but also is responsible for checking correctness 
-bool print_question_list(tQuestion* q, int stop, char* password) {
+void print_question_list(tQuestion* q, int stop, bool* correctness) {
 
 	// early break for when there's 0 questions shown
 	if (!stop) {
 		return true;
 	}
 
-	bool allCorrect = true;
-	// printf("%d\n", stop);
-
-	for (int i = 0; i < stop+1; i++) {
-
-		// loop normally goes to the next new question, but will stop if you don't have all current questions correct. 
-		// if everything is correct, it assumes you have unlocked the new question. 
-		if (i == stop && !allCorrect) {
-			break;
-		}
+	for (int i = 0; i < stop; i++) {
 
 		char colorstr[1024] = "";
 
 		// set the color according to if the question is fulfilled 
-		if (q->callback(password)) {
+		if (correctness[i]) {
 			color_string(q->message, ANSI_FOREGROUND_GREEN, colorstr);
 		} else {
 			color_string(q->message, ANSI_FOREGROUND_RED, colorstr);
-			allCorrect = false;
 		}
 
 		printf("%s\n", colorstr);
@@ -214,8 +241,6 @@ bool print_question_list(tQuestion* q, int stop, char* password) {
 
 		q = q->nextQuestion;
 	}
-
-	return allCorrect;
 
 }
 
@@ -262,11 +287,10 @@ bool example_function(char* message) {
 
 // "Your password must contain a number."
 bool question1(char* password) {
-
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, ".*[0-9].*", 0);
+	compilation_code = regcomp(&reg, ".*[0-9].*", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -293,30 +317,152 @@ bool question1(char* password) {
 
 // "Your password must contain a capital letter."
 bool question2(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, ".*[A-Z].*", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
-
 
 // "Your password must contain a special character from this list: !@#$^&*()+=~"
 bool question3(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, ".*[!@#$^&*()+=~].*", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
-// "The length of your password must be a highly composite number."
+// "The length of your password must be a prime number."
 bool question4(char* password) {
-	return true;
+
+	// length of array is 54
+	// only need up to 256 since that's half of the allowed length and 2*256 would fill up the whole thing 
+	int primes[] = {   2,   3,   5,   7,   11,   13,   17,   19,   23,   29,   31,   37,   41,   43,   47,   53,   59,   61,   67,   71,   73,   79,   83,   89,   97,   101,   103,   107,   109,   113,   127,   131,   137,   139,   149,   151,   157,   163,   167,   173,   179,   181,   191,   193,   197,   199,   211,   223,   227,   229,   233,   239,   241,   251 };
+	int length = strlen(password);
+	
+	// I don't really expect them to make a password past this, but just in case:
+	if (length > 256) {
+
+		for (int i = 0; i < 54; i++) {
+			if ((length % primes[i]) == 0) {	// if divisible by anything in the array, then it's composite.
+				return false;
+			}
+		}
+
+	} else {
+		for (int i = 0; i < 54; i++) {
+			if (length == primes[i]) {
+				return true;
+			}
+		}
+	}
+
+	// fail
+	return false;
 }
 
 // "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear"
 bool question5(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*Pepsi|Walmart|Lowes|LEGO|Autozone|Build-A-Bear.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
 
 // "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm"
 bool question6(char* password) {
+	regex_t reg;
+	int compilation_code;
+
+	compilation_code = regcomp(&reg, "(.*Anky|Timo|Bulldogs|LATech|Cyberstorm.*)", REG_EXTENDED);
+
+	// error handling for regex compilation
+	if (compilation_code) {
+		print_regex_error(compilation_code, &reg);
+		return true; // return true just to be kind if the mistake is not on the player's part
+	}
+
+	int match_code;
+	match_code = regexec(&reg, password, 0, NULL, 0);
+
+	// match was not found. password fails this rule.
+	if (match_code == REG_NOMATCH){
+		return false;
+	}
+
+	// regex ran out of memory. give question for free since it's not their mistake.
+	if (match_code == REG_ESPACE) {
+		return true;
+	}
+
+	// success
 	return true;
 }
-
 
 // "Your password must contain a roman numeral."
 bool question7(char* password) {
@@ -408,7 +554,7 @@ int main (void) {
 
 	// winning variables
 	char username[64] = "";
-	char password[2048] = "";
+	char password[PASSWORD_MAX_LENGTH] = "";
 
 	// ask for username 
 	get_input_with_message("Please enter the username you wish to use. (Max 64 characters)", username);
@@ -433,32 +579,41 @@ int main (void) {
 	tQuestion q7 = { "Your password must contain a roman numeral.", question7, &q8 };
 	tQuestion q6 = { "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm", question6, &q7 };
 	tQuestion q5 = { "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear", question5, &q6 };
-	tQuestion q4 = { "The length of your password must be a highly composite number.", question4, &q5 }; 
+	tQuestion q4 = { "The length of your password must be a prime number.", question4, &q5 }; 
 	tQuestion q3 = { "Your password must contain a special character from this list: !@#$^&*()+=~", question3, &q4 };
 	tQuestion q2 = { "Your password must contain a capital letter.", question2, &q3 };
 	tQuestion q1 = { "Your password must contain a number.", question1, &q2 };
 	
 	// main game loop
-	tQuestion* first = &q1;
-	int questions_found = 0;
+	tQuestion* first = &q5;
+	int questions_found = 0; 
 	int total_questions = get_total_questions(first);
 	bool allCorrect = false;
+	bool correctness[total_questions];
+	// init the correctness
+	for (int i = 0; i < total_questions; i++) {
+		correctness[i] = false;
+	}
 	while (true) {
 
-		// check previous attempt and print all the questions
-		allCorrect = print_question_list(first, questions_found, password);
-
-		// increment found questions 
-		if (allCorrect){
-			questions_found++;
-		}
+		// print all the questions
+		print_question_list(first, questions_found, correctness);
 
 		// prompt for user input 
 		get_input_with_message("Please enter a new password.", password);
 
+		// check attempt 
+		check_question_list(first, questions_found, password, correctness);
+		allCorrect = all_correct(correctness, questions_found);
+
 		// check if no more questions (Win state, sbreak loop)
 		if (allCorrect && questions_found == total_questions) {
 			break;
+		}
+
+		// increment if correct
+		if (allCorrect) {
+			questions_found++;
 		}
 
 	}
