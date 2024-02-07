@@ -4,8 +4,9 @@ session_start();
 // Filler values for correct username and password
 //$validUsername = 'your_username';
 //$validPassword = 'your_password';
-$myfile = fopen("userinfo.txt", "r");
-$userdatabase = fread($myfile,filesize("userinfo.txt"));
+$hashalgo = "sha256";
+$myfile = fopen("users", "r");
+$userdatabase = fread($myfile,filesize("users"));
 $inputlist = explode(" ",$userdatabase);
 //$validusernames = array();
 //for ($i=0; $i < count($inputlist); $i+=2){
@@ -16,10 +17,10 @@ $inputlist = explode(" ",$userdatabase);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $enteredUsername = $_POST["username"];
     $enteredPassword = $_POST["password"];
-
+    $hashedEnteredPassword = hash($hashalgo, $enteredPassword);
     // Validate the entered credentials
     for ($i = 0; $i < count($inputlist); $i++){
-            if ($enteredUsername == $inputlist[$i] && $enteredPassword == $inputlist[$i+=1]) {
+            if ($enteredUsername == $inputlist[$i] && $hashedEnteredPassword == $inputlist[$i+=1]) {
         // Authentication successful
                 $_SESSION["username"] = $enteredUsername;
                 header("Location: dashboard.php");
@@ -27,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }       
             else {
         // Authentication failed
-                $error_message = $validusernames[0];
+                $error_message = "Invalid username or password";
     }
 }
 }
