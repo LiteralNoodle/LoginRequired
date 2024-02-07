@@ -5,8 +5,8 @@ session_start();
 //$validUsername = 'your_username';
 //$validPassword = 'your_password';
 $hashalgo = "sha256";
-$myfile = fopen("userinfo.txt", "r");
-$userdatabase = fread($myfile,filesize("userinfo.txt"));
+$myfile = fopen("users", "r");
+$userdatabase = fread($myfile,filesize("users"));
 $inputlist = explode(" ",$userdatabase);
 //$validusernames = array();
 //for ($i=0; $i < count($inputlist); $i+=2){
