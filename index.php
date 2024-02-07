@@ -1,9 +1,16 @@
 <?php
 session_start();
 
-// Replace these values with the correct username and password
-$validUsername = 'your_username';
-$validPassword = 'your_password';
+// Filler values for correct username and password
+//$validUsername = 'your_username';
+//$validPassword = 'your_password';
+$myfile = fopen("userinfo.txt", "r");
+$userdatabase = fread($myfile,filesize("userinfo.txt"));
+$inputlist = explode(" ",$userdatabase);
+//$validusernames = array();
+//for ($i=0; $i < count($inputlist); $i+=2){
+//   $validusernames[$i/2] = $inputlist[$i];
+//}
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -11,16 +18,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $enteredPassword = $_POST["password"];
 
     // Validate the entered credentials
-    if ($enteredUsername == $validUsername && $enteredPassword == $validPassword) {
+    for ($i = 0; $i < count($inputlist); $i++){
+            if ($enteredUsername == $inputlist[$i] && $enteredPassword == $inputlist[$i+=1]) {
         // Authentication successful
-        $_SESSION["username"] = $enteredUsername;
-        header("Location: dashboard.php");
-        exit();
-    } else {
+                $_SESSION["username"] = $enteredUsername;
+                header("Location: dashboard.php");
+                exit();
+    }       
+            else {
         // Authentication failed
-        $error_message = "Invalid username or password";
+                $error_message = $validusernames[0];
     }
 }
+}
+
 ?>
 
 <!DOCTYPE html>
