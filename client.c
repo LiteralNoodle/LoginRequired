@@ -16,7 +16,7 @@
 #define ANSI_FOREGROUND_RED "\e[0;31m"
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
-#define SKIP_CONNECTION_TEST true
+#define SKIP_CONNECTION_TEST false
 #define DEBUG_NETWORK false
 
 #define PASSWORD_MAX_LENGTH 512
@@ -34,6 +34,11 @@ typedef struct Question {
 	questionCallback callback;
 	struct Question* nextQuestion;
 } tQuestion;
+
+typedef struct History {
+	struct History* previous;
+	char* message;
+} tHistory; 
  
 // callback for libcurl memory chunks 
 static size_t
@@ -159,6 +164,50 @@ void sha256_string(char *string, char outputBuffer[65])
     outputBuffer[64] = 0;
 }
 
+// push onto history list
+void push_history(tHistory** head, char* message) {
+
+	// don't add to history if it's the same as the last
+	if (*head != NULL) {
+		tHistory* p = *head;
+		if (!strcmp(p->message, message)) {
+			return;
+		}
+	}
+
+	char* message_copy = (char*)malloc(sizeof(char) * PASSWORD_MAX_LENGTH);
+	strcpy(message_copy, message);
+
+	tHistory* h;
+	h = (tHistory*)malloc(sizeof(tHistory));
+
+	h->message = message_copy;
+	h->previous = *head;
+	*head = h; 
+
+	// limit history to 10
+	// since this is built-up one at a time, just have to delete the last one
+	tHistory* cursor = *head;
+	int limit = 10;
+	for (int i = 0; i < limit; i++) {
+		
+		if (i == limit-1) {
+			if (cursor->previous != NULL) {
+				free(cursor->previous);
+				cursor->previous = NULL;
+			}
+			return;
+		}
+				
+		if (cursor->previous == NULL) {
+			break;
+		}
+
+		cursor = cursor->previous;
+	}
+
+}
+
 // only accepts a single word
 // whitespace will not be included in response 
 void get_input_with_message(char* message, char* userinput) {
@@ -219,7 +268,7 @@ void print_question_list(tQuestion* q, int stop, bool* correctness) {
 
 	// early break for when there's 0 questions shown
 	if (!stop) {
-		return true;
+		return;
 	}
 
 	for (int i = 0; i < stop; i++) {
@@ -466,6 +515,7 @@ bool question6(char* password) {
 
 // "Who lives in a pineapple under the sea?"
 bool question7(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*spongebob|Spongebob|spongebobsquarepants|Spongebobsquarepants|SpongebobSquarepants.*)", REG_EXTENDED);
@@ -496,6 +546,7 @@ bool question7(char* password) {
 
 // "Onions have layers, who else has layers?"
 bool question8(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*shrek|Shrek|ogres|Ogres.*)", REG_EXTENDED);
@@ -526,6 +577,7 @@ bool question8(char* password) {
 
 // "Your password must contain a cartoon character whose slogan is 'Good Mornin'"
 bool question9(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*unclegrandpa|UncleGrandpa|Unclegrandpa.*)", REG_EXTENDED);
@@ -555,6 +607,7 @@ bool question9(char* password) {
 
 // "What's 9+10?"
 bool question10(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*21|twentyone.*)", REG_EXTENDED);
@@ -584,6 +637,7 @@ bool question10(char* password) {
 
 // "Your password must contain the name of the main robot from Futurama"
 bool question11(char* password) {
+	regex_t reg;
 	int compilation_code;
 
 	compilation_code = regcomp(&reg, "(.*bender|Bender.*)", REG_EXTENDED);
@@ -927,6 +981,9 @@ int main (void) {
 	char username[64] = "";
 	char password[PASSWORD_MAX_LENGTH] = "";
 
+	// begin history 
+	tHistory* history_head = NULL;
+
 	// ask for username 
 	get_input_with_message("Please enter the username you wish to use. (Max 64 characters)", username);
 
@@ -966,7 +1023,7 @@ int main (void) {
 	tQuestion q1 = { "Your password must contain a number.", question1, &q2 };
 	
 	// main game loop
-	tQuestion* first = &q5;
+	tQuestion* first = &q1;
 	int questions_found = 0; 
 	int total_questions = get_total_questions(first);
 	bool allCorrect = false;
@@ -982,6 +1039,9 @@ int main (void) {
 
 		// prompt for user input 
 		get_input_with_message("Please enter a new password.", password);
+
+		// add to history
+		push_history(&history_head, password);
 
 		// check attempt 
 		check_question_list(first, questions_found, password, correctness);
