@@ -38,6 +38,7 @@
 <body>
     <div id="dashboard">
         <h2>You have successfully logged in!</h2>
+        <p> Key = password </p>
         <p>Show your professor for points!</p>
         <p><a href="index.html">Logout</a></p>
     </div>
