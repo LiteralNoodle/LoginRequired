@@ -1,12 +1,35 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-SERVER_IP = 'localhost'
+SERVER_IP = '192.168.0.19'
 SERVER_PORT = 8080
 ACCOUNTS_FILE = 'users'
 
 class Serv(BaseHTTPRequestHandler):
 
     def do_GET(self):
+
+        print(self.path)
+        url_dir = self.path
+
+        # default path
+        if url_dir == '/' or url_dir == '':
+            url_dir = '/index.html'
+
+        # try to open the requested page
+        try:
+            file_contents = open(url_dir[1:]).read()
+            self.send_response(200)
+
+        except:
+            file_contents = "File not found"
+            self.send_response(404)
+
+        # send the response (requested page or otherwise)
+        self.end_headers()
+        self.wfile.write(bytes(file_contents, 'utf-8'))
+
+    # POST for when making a new account or retrieving an account
+    def do_POST(self):
 
         print(self.path)
 
@@ -55,6 +78,7 @@ class Serv(BaseHTTPRequestHandler):
         # send the response (requested page or otherwise)
         self.end_headers()
         self.wfile.write(bytes(file_contents, 'utf-8'))
+
 
     # for parsing the user file and checking if user present 
     def read_users(self, user_file):

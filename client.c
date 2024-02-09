@@ -17,7 +17,7 @@
 #define ANSI_FOREGROUND_WHITE "\e[0;37m"
 
 #define SKIP_CONNECTION_TEST false
-#define DEBUG_NETWORK false
+#define DEBUG_NETWORK true
 
 #define PASSWORD_MAX_LENGTH 512
 
@@ -90,6 +90,7 @@ int send_user_account(char* username, char* hash, char* server_ip, char* server_
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+	curl_easy_setopt(curl, CURLOPT_POST, 1);
 
 	result = curl_easy_perform(curl);
 
@@ -133,6 +134,7 @@ int test_connection(char* server_ip, char* server_port) {
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+	curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
 
 	result = curl_easy_perform(curl);
 
