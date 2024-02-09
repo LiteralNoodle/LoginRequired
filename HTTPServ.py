@@ -1,6 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from ast import literal_eval
 
-SERVER_IP = '192.168.0.19'
+SERVER_IP = 'localhost'
 SERVER_PORT = 8080
 ACCOUNTS_FILE = 'users'
 
@@ -53,14 +54,40 @@ class Serv(BaseHTTPRequestHandler):
         if url_dir == '/' or url_dir == '':
             url_dir = '/index.html'
 
-        # try to open the requested page
-        try:
-            file_contents = open(url_dir[1:]).read()
-            self.send_response(200)
+        # handle login
+        if url_dir == "/trylogin":
+            # get request body as dictionary 
+            content_length = int(self.headers.get('Content-Length'))
+            post_body = self.rfile.read(content_length).decode('utf-8')
+            
+            # check against existing accounts
+            try:
+                user_file = open(ACCOUNTS_FILE, 'r+')
+                user_dict = self.read_users(user_file)
+                post_body = literal_eval(post_body) # convert str to dict
 
-        except:
-            file_contents = "File not found"
-            self.send_response(404)
+                if post_body['username'] in list(user_dict.keys()):
+                    print(f'Found user: {post_body["username"]}')
+                    # check if hash matches 
+                    if post_body['passwordHash'] == user_dict[post_body['username']]:
+                        # success. login. 
+                        print(f'Logged in {post_body["username"]}')
+                        self.send_response(301)
+                        self.send_header('Location', 'dashboard.html')
+                        self.end_headers()
+                    else:
+                        # fail. back to login.
+                        print(f"Failed to login {post_body['username']}")
+                        self.send_response(301)
+                        self.send_header('Location', '/login.html')
+                        self.end_headers()
+
+                user_file.close()
+
+            except:
+                print("Error checking account file.")
+
+        file_contents = self.get_requested_content(url_dir)
 
         # handle account creation if required
         if url_dir == '/createaccount':
@@ -79,6 +106,18 @@ class Serv(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(file_contents, 'utf-8'))
 
+    # func for getting requested file
+    def get_requested_content(self, url_dir):
+        # try to open the requested page
+        try:
+            file_contents = open(url_dir[1:]).read()
+            self.send_response(200)
+
+        except:
+            file_contents = "File not found"
+            self.send_response(404)
+
+        return file_contents
 
     # for parsing the user file and checking if user present 
     def read_users(self, user_file):

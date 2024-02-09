@@ -24,12 +24,13 @@ async function handleSubmit() {
     let body = { 'username': username, 'passwordHash': passwordHash};
 
     try {
-        const response = await fetch("http://" + HOST, {
+        const response = await fetch("http://" + HOST + "/trylogin", {
             method: "POST",
             body: JSON.stringify(body),
         });
 
         console.log(await response);
+        window.location.href = response.url
     } catch (e) {
         console.log(e);
     }
