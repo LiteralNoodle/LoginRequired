@@ -513,12 +513,12 @@ bool question6(char* password) {
 	return true;
 }
 
-// "Who lives in a pineapple under the sea?"
+// "Your password must contain the hex for the color blue"
 bool question7(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, "(.*spongebob|Spongebob|spongebobsquarepants|Spongebobsquarepants|SpongebobSquarepants.*)", REG_EXTENDED);
+	compilation_code = regcomp(&reg, "(.*#0000FF.*)", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -575,12 +575,12 @@ bool question8(char* password) {
 }
 
 
-// "Your password must contain a cartoon character whose slogan is 'Good Mornin'"
+// "Your password must contain REDACTED"
 bool question9(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, "(.*unclegrandpa|UncleGrandpa|Unclegrandpa.*)", REG_EXTENDED);
+	compilation_code = regcomp(&reg, "(.*REDACTED.*)", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -605,12 +605,12 @@ bool question9(char* password) {
 	return true;
 }
 
-// "What's 9+10?"
+// "What rule number is this?"
 bool question10(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, "(.*21|twentyone.*)", REG_EXTENDED);
+	compilation_code = regcomp(&reg, "(.*10|ten|Ten|TEN.*)", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -635,12 +635,12 @@ bool question10(char* password) {
 	return true;
 }
 
-// "Your password must contain the name of the main robot from Futurama"
+// "Your password must contain Timo's office number"
 bool question11(char* password) {
 	regex_t reg;
 	int compilation_code;
 
-	compilation_code = regcomp(&reg, "(.*bender|Bender.*)", REG_EXTENDED);
+	compilation_code = regcomp(&reg, "(.*215.*)", REG_EXTENDED);
 
 	// error handling for regex compilation
 	if (compilation_code) {
@@ -1010,11 +1010,11 @@ int main (void) {
 	tQuestion q14 = { "Your password must contain a type that is supereffective against dragon type.", question14, &q15 };
 	tQuestion q13 = { "Your password must contain the base power of extremespeed in Pokemon.", question13, &q14 };
 	tQuestion q12 = { "Your password must contain a generation 4 starter Pokemon.", question12, &q13 };
-	tQuestion q11 = { "Your password must contain the name of the main robot from Futurama", question11, &q12 };
-	tQuestion q10 = { "What's 9+10?", question10, &q11 };
-	tQuestion q9 = { "Your password must contain a cartoon character whose slogan is 'Good Mornin'", question9, &q10 };
+	tQuestion q11 = { "Your password must contain Timo's office number", question11, &q12 };
+	tQuestion q10 = { "What rule number is this? (Add it to the end of the password)", question10, &q11 };
+	tQuestion q9 = { "Your password must contain REDACTED", question9, &q10 };
 	tQuestion q8 = { "Onions have layers, who else has layers?", question8, &q9 };
-	tQuestion q7 = { "Who lives in a pineapple under the sea?", question7, &q8 };
+	tQuestion q7 = { "Your password must contain the hex for the color blue", question7, &q8 };
 	tQuestion q6 = { "Your password must contain one word of university spirit: Anky Timo Bulldogs LATech Cyberstorm", question6, &q7 };
 	tQuestion q5 = { "Your password must contain one of our sponsors: Pepsi Walmart Lowes LEGO Autozone Build-A-Bear", question5, &q6 };
 	tQuestion q4 = { "The length of your password must be a prime number.", question4, &q5 }; 
