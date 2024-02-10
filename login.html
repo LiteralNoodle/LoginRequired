@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Login Page</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,19 +39,18 @@
     </style>
 </head>
 <body>
-    <div id="welcome-message">
-        <h1>Welcome!</h1>
-        <p>If you are ready to play the game, please select start, then log in.</p>
-        <p> Nom "Okb" kkt gsea! Ojn Iieg wpfxi tzw ics. </p>
-        <button id="start-button">Start</button>
-    </div>
+    <div id="login-form">
+        <h2>Login</h2>
+        <form id="login" action="/login.html" method="post">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('start-button').addEventListener('click', function() {
-                window.location.href = 'login_page.php';
-            });
-        });
-    </script>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button id="submit" type="submit">Login</button>
+        </form>
+    </div>
+    <script src="login.js"></script>
 </body>
 </html>
