@@ -73,14 +73,19 @@ class Serv(BaseHTTPRequestHandler):
                         # success. login. 
                         print(f'Logged in {post_body["username"]}')
                         self.send_response(301)
-                        self.send_header('Location', 'dashboard.html')
+                        self.send_header('Location', '/logged_in.html')
                         self.end_headers()
                     else:
                         # fail. back to login.
                         print(f"Failed to login {post_body['username']}")
                         self.send_response(301)
-                        self.send_header('Location', '/login.html')
+                        self.send_header('Location', '/login_failed.html')
                         self.end_headers()
+                else:
+                    print(f"Failed to login {post_body['username']}")
+                    self.send_response(301)
+                    self.send_header('Location', '/login_failed.html')
+                    self.end_headers()
 
                 user_file.close()
 
